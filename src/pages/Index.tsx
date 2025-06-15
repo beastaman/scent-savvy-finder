@@ -1,39 +1,122 @@
 
 import { useState } from "react";
-import { Search, TrendingUp, Star, ExternalLink } from "lucide-react";
+import { Search, TrendingUp, Star, ExternalLink, Zap, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import SearchResults from "@/components/SearchResults";
 import TrendingSearches from "@/components/TrendingSearches";
 import PriceAnalytics from "@/components/PriceAnalytics";
+import AdvancedSearch from "@/components/AdvancedSearch";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
+  const handleSearch = async (term: string, filters: any) => {
+    if (!term.trim()) return;
     
     setIsLoading(true);
-    // Simulate API call
+    // Simulate API call with realistic timing
     setTimeout(() => {
       const mockResults = {
         fragrance: {
-          name: searchTerm,
-          brand: "Example Brand",
+          name: term,
+          brand: "Premium Brand",
           image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=300&h=300&fit=crop",
-          concentration: "Eau de Parfum"
+          concentration: "Eau de Parfum",
+          size: "100ml",
+          rating: 4.6,
+          reviews: 1247
         },
         prices: [
-          { retailer: "FragranceNet", price: 89.99, stock: "In Stock", url: "#", savings: 15 },
-          { retailer: "FragranceX", price: 94.99, stock: "In Stock", url: "#", savings: 10 },
-          { retailer: "Jomashop", price: 79.99, stock: "Limited", url: "#", savings: 25 },
-          { retailer: "FragranceShop", price: 99.99, stock: "In Stock", url: "#", savings: 5 },
-          { retailer: "AuraFragrance", price: 87.99, stock: "Out of Stock", url: "#", savings: 17 },
-          { retailer: "FragFlex", price: 82.99, stock: "In Stock", url: "#", savings: 22 },
-          { retailer: "FragranceBuy", price: 91.99, stock: "In Stock", url: "#", savings: 13 },
-          { retailer: "PerfumeWorld", price: 86.99, stock: "In Stock", url: "#", savings: 18 }
+          { 
+            retailer: "FragranceNet", 
+            price: 79.99, 
+            stock: "In Stock", 
+            url: "https://www.fragrancenet.com/", 
+            savings: 25,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "2-3 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "FragranceX", 
+            price: 84.99, 
+            stock: "In Stock", 
+            url: "https://www.fragrancex.com/", 
+            savings: 20,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "3-5 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "Jomashop", 
+            price: 72.99, 
+            stock: "Limited", 
+            url: "https://www.jomashop.com/", 
+            savings: 32,
+            originalPrice: 106.99,
+            shipping: "$5.95",
+            eta: "5-7 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "FragranceShop", 
+            price: 89.99, 
+            stock: "In Stock", 
+            url: "https://www.fragranceshop.com/", 
+            savings: 16,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "2-4 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "AuraFragrance", 
+            price: 87.99, 
+            stock: "In Stock", 
+            url: "https://www.aurafragrance.com/", 
+            savings: 18,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "3-5 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "FragFlex", 
+            price: 76.99, 
+            stock: "Pre-order", 
+            url: "https://fragflex.com/", 
+            savings: 28,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "7-10 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "FragranceBuy", 
+            price: 91.99, 
+            stock: "In Stock", 
+            url: "https://fragrancebuy.ca/", 
+            savings: 14,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "4-6 business days",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          },
+          { 
+            retailer: "PerfumeWorld", 
+            price: 94.99, 
+            stock: "Out of Stock", 
+            url: "#", 
+            savings: 11,
+            originalPrice: 106.99,
+            shipping: "Free shipping",
+            eta: "Currently unavailable",
+            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+          }
         ]
       };
       setSearchResults(mockResults);
@@ -43,103 +126,163 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      {/* Enhanced Header */}
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Search className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Search className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">ScentSavvy</h1>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  ScentSavvy
+                </h1>
+                <p className="text-xs text-gray-500">Smart Fragrance Price Comparison</p>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">Compare prices across 8 retailers</div>
+            <div className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-green-500" />
+                <span>8 Trusted Retailers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-blue-500" />
+                <span>Real-time Prices</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-purple-500" />
+                <span>Updated Every Hour</span>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Find the Best Perfume Deals
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Search across 8 major retailers instantly and save up to 50% on your favorite fragrances
-          </p>
-          
-          {/* Search Interface */}
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Search for any perfume or cologne..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="pl-12 pr-4 py-4 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl"
-              />
-              <Button
-                onClick={handleSearch}
-                disabled={isLoading}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-2 rounded-lg"
-              >
-                {isLoading ? "Searching..." : "Search"}
-              </Button>
-            </div>
+      {/* Hero Section with Enhanced Search */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="space-y-6 mb-12">
+            <h2 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              Find the Best
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Perfume Deals</span>
+            </h2>
+            <p className="text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Search across 8 major retailers instantly and save up to 50% on your favorite fragrances with real-time price comparison
+            </p>
           </div>
+          
+          {/* Enhanced Search Interface */}
+          <AdvancedSearch 
+            onSearch={handleSearch}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            isLoading={isLoading}
+          />
 
           {/* Trending Searches */}
           {!searchResults && <TrendingSearches onSearchClick={setSearchTerm} />}
+
+          {/* Trust Indicators */}
+          {!searchResults && (
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">8</div>
+                <div className="text-sm text-gray-600">Major Retailers</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">50%</div>
+                <div className="text-sm text-gray-600">Max Savings</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600">24/7</div>
+                <div className="text-sm text-gray-600">Price Monitoring</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-orange-600">100K+</div>
+                <div className="text-sm text-gray-600">Fragrances</div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Search Results */}
       {searchResults && (
-        <section className="pb-16">
+        <section className="pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SearchResults results={searchResults} />
-            <div className="mt-12">
+            <div className="mt-16">
               <PriceAnalytics results={searchResults} />
             </div>
           </div>
         </section>
       )}
 
-      {/* Features Section (when no search results) */}
+      {/* Enhanced Features Section */}
       {!searchResults && (
-        <section className="py-16 bg-white">
+        <section className="py-20 bg-white/50 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Why Choose ScentSavvy?</h3>
+            <div className="text-center mb-16">
+              <h3 className="text-4xl font-bold text-gray-900 mb-6">Why Choose ScentSavvy?</h3>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                The most comprehensive fragrance price comparison platform with advanced analytics and real-time monitoring
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center p-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-6 h-6 text-blue-600" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <div className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Search className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">Instant Search</h4>
-                <p className="text-gray-600">Search across 8 major retailers in seconds</p>
+                <h4 className="text-2xl font-bold mb-4 text-gray-900">Instant Search</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  Search across 8 major retailers in seconds with our lightning-fast comparison engine and get real-time results
+                </p>
               </div>
-              <div className="text-center p-6">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+              <div className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">Price Analytics</h4>
-                <p className="text-gray-600">Track price trends and find the best deals</p>
+                <h4 className="text-2xl font-bold mb-4 text-gray-900">Smart Analytics</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  Track price trends, analyze market data, and get insights on the best times to buy your favorite fragrances
+                </p>
               </div>
-              <div className="text-center p-6">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Star className="w-6 h-6 text-purple-600" />
+              <div className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <Star className="w-8 h-8 text-white" />
                 </div>
-                <h4 className="text-xl font-semibold mb-2">Smart Alerts</h4>
-                <p className="text-gray-600">Get notified when prices drop</p>
+                <h4 className="text-2xl font-bold mb-4 text-gray-900">Price Alerts</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  Set custom price alerts and get notified instantly when your watched fragrances drop to your target price
+                </p>
               </div>
             </div>
           </div>
         </section>
       )}
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Search className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl font-bold">ScentSavvy</h1>
+            </div>
+            <p className="text-gray-400 mb-6">The ultimate fragrance price comparison platform</p>
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
+              <span>✓ 8 Major Retailers</span>
+              <span>✓ Real-time Pricing</span>
+              <span>✓ Price History</span>
+              <span>✓ Smart Alerts</span>
+              <span>✓ Mobile Optimized</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
