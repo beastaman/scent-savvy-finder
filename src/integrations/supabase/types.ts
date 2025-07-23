@@ -14,7 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fragrances: {
+        Row: {
+          brand: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      price_history: {
+        Row: {
+          created_at: string
+          currency: string | null
+          fragrance_id: string | null
+          id: string
+          image_url: string | null
+          in_stock: boolean | null
+          price: number | null
+          product_name: string | null
+          product_url: string | null
+          retailer_id: string | null
+          scraped_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          fragrance_id?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          price?: number | null
+          product_name?: string | null
+          product_url?: string | null
+          retailer_id?: string | null
+          scraped_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          fragrance_id?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          price?: number | null
+          product_name?: string | null
+          product_url?: string | null
+          retailer_id?: string | null
+          scraped_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_fragrance_id_fkey"
+            columns: ["fragrance_id"]
+            isOneToOne: false
+            referencedRelation: "fragrances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_history_retailer_id_fkey"
+            columns: ["retailer_id"]
+            isOneToOne: false
+            referencedRelation: "retailers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      retailers: {
+        Row: {
+          base_url: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          search_url_template: string
+        }
+        Insert: {
+          base_url: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          search_url_template: string
+        }
+        Update: {
+          base_url?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          search_url_template?: string
+        }
+        Relationships: []
+      }
+      search_queries: {
+        Row: {
+          created_at: string
+          id: string
+          last_searched_at: string
+          query: string
+          search_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_searched_at?: string
+          query: string
+          search_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_searched_at?: string
+          query?: string
+          search_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
