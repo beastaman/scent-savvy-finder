@@ -1,1 +1,7 @@
 project_id = "klxbexyxqajftjvmnisu"
+
+[functions.search-perfumes]
+verify_jwt = false
+
+[functions.get-trending] 
+verify_jwt = false
