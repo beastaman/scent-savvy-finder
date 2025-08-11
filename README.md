@@ -5,7 +5,6 @@
   
   **Find the Best Perfume Deals Across 8+ Major Retailers**
   
-  [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_ScentSavvy-blue?style=for-the-badge)](https://lovable.dev/projects/34e97e05-7045-4256-8735-0ea0e5224995)
   [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
   [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -132,40 +131,46 @@ npm run lint
 
 ## 🌐 Deployment
 
-### Deploy with Lovable (Recommended)
+### Deploy with Vercel
 
-1. Visit your [Lovable Project](https://lovable.dev/projects/34e97e05-7045-4256-8735-0ea0e5224995)
-2. Click **Share** → **Publish**
-3. Your app will be live instantly! 🎉
+1. Connect your GitHub repository to [Vercel](https://vercel.com)
+2. Click **Import** and select your repository
+3. Configure build settings (Vite preset is automatically detected)
+4. Click **Deploy**
 
-### Custom Domain
+### Deploy with Netlify
 
-Connect your own domain through Lovable:
-1. Navigate to **Project** → **Settings** → **Domains**
-2. Click **Connect Domain**
-3. Follow the setup guide: [Custom Domain Documentation](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Connect your repository to [Netlify](https://netlify.com)
+2. Set build command: `npm run build`
+3. Set publish directory: `dist`
+4. Click **Deploy site**
 
 ## 🤝 Contributing
 
-We welcome contributions! Here are several ways you can help:
+We welcome contributions! Here's how you can help:
 
-### Development Options
+### Getting Started
 
-**🎨 Use Lovable (No-Code)**
-- Visit the [Lovable Project](https://lovable.dev/projects/34e97e05-7045-4256-8735-0ea0e5224995)
-- Make changes through prompts
-- Changes auto-commit to this repo
+1. Fork this repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Submit a pull request
 
-**💻 Traditional Development**
-- Fork this repository
-- Create a feature branch
-- Make your changes
-- Submit a pull request
+### Development Setup
 
-**☁️ GitHub Codespaces**
-- Click the **Code** button → **Codespaces** → **New codespace**
-- Edit directly in the browser
-- Commit and push changes
+```bash
+# Fork and clone the repo
+git clone https://github.com/yourusername/scent-savvy-finder.git
+cd scent-savvy-finder
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
 
 ## 📊 Features Roadmap
 
@@ -185,13 +190,13 @@ We welcome contributions! Here are several ways you can help:
 
 ## 📝 License
 
-This project is part of the Lovable platform. See the platform's terms for usage rights.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙋‍♂️ Support
 
-- **Live Demo**: [Try ScentSavvy](https://lovable.dev/projects/34e97e05-7045-4256-8735-0ea0e5224995)
-- **Documentation**: [Lovable Docs](https://docs.lovable.dev/)
 - **Issues**: Open an issue in this repository
+- **Questions**: Start a discussion in the Discussions tab
+- **Email**: support@scentsavvy.com
 
 ---
 
