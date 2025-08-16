@@ -1,8 +1,6 @@
-
 import { useState, useRef, useEffect } from "react";
-import { Search, Filter, X, ChevronDown } from "lucide-react";
+import { Search, Filter, TrendingUp, Star, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 interface AdvancedSearchProps {
   onSearch: (term: string, filters: any) => void;
@@ -24,24 +22,30 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
 
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = [
-    "Dior Sauvage",
-    "Chanel No. 5",
-    "Tom Ford Black Orchid",
-    "Creed Aventus",
-    "Yves Saint Laurent Black Opium",
-    "Giorgio Armani Acqua di Gio",
-    "Bleu de Chanel",
-    "Versace Eros",
-    "Dolce & Gabbana Light Blue",
-    "Calvin Klein Eternity"
-  ].filter(item => 
-    item.toLowerCase().includes(searchTerm.toLowerCase()) && searchTerm.length > 0
+  // Enhanced suggestions with categories
+  const popularSuggestions = [
+    { name: "Dior Sauvage", category: "Men's", trending: true },
+    { name: "Chanel No. 5", category: "Women's", trending: true },
+    { name: "Tom Ford Black Orchid", category: "Unisex", trending: true },
+    { name: "Creed Aventus", category: "Men's", trending: false },
+    { name: "YSL Black Opium", category: "Women's", trending: true },
+    { name: "Giorgio Armani Acqua di Gio", category: "Men's", trending: false },
+    { name: "Bleu de Chanel", category: "Men's", trending: false },
+    { name: "Versace Eros", category: "Men's", trending: true },
+    { name: "Dolce & Gabbana Light Blue", category: "Unisex", trending: false },
+    { name: "Calvin Klein Eternity", category: "Unisex", trending: false }
+  ];
+
+  const filteredSuggestions = popularSuggestions.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) && searchTerm.length > 0
   );
 
-  const brands = ["Dior", "Chanel", "Tom Ford", "Creed", "YSL", "Giorgio Armani", "Versace", "Calvin Klein"];
+  const brands = [
+    "Dior", "Chanel", "Tom Ford", "Creed", "YSL", "Giorgio Armani", 
+    "Versace", "Calvin Klein", "Dolce & Gabbana", "Prada", "Gucci", "Hermès"
+  ];
   const concentrations = ["EDT", "EDP", "Parfum", "Cologne"];
-  const sizes = ["30ml", "50ml", "100ml", "150ml"];
+  const sizes = ["30ml", "50ml", "75ml", "100ml", "125ml", "150ml", "200ml"];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,9 +58,12 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSearch = () => {
-    onSearch(searchTerm, filters);
-    setShowSuggestions(false);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      onSearch(searchTerm, filters);
+      setShowSuggestions(false);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -78,89 +85,143 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
   const hasActiveFilters = Object.values(filters).some(value => value !== "");
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
       {/* Main Search Bar */}
       <div ref={searchRef} className="relative">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6 group-focus-within:text-blue-500 transition-colors" />
-          <Input
-            type="text"
-            placeholder="Search for any perfume or cologne..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setShowSuggestions(e.target.value.length > 0);
-            }}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            onFocus={() => setShowSuggestions(searchTerm.length > 0)}
-            className="pl-12 pr-20 py-6 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 bg-white"
-          />
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
-            <Button
-              onClick={() => setShowFilters(!showFilters)}
-              variant="outline"
-              size="sm"
-              className={`rounded-lg ${showFilters ? 'bg-blue-50 border-blue-300' : ''} ${hasActiveFilters ? 'bg-blue-100 border-blue-400' : ''}`}
-            >
-              <Filter className="w-4 h-4" />
-              {hasActiveFilters && <span className="ml-1 text-xs bg-blue-500 text-white rounded-full w-2 h-2"></span>}
-            </Button>
-            <Button
-              onClick={handleSearch}
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
+              <Search className="h-6 w-6 text-gray-400 group-hover:text-blue-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              placeholder="Search for your favorite fragrance... (e.g., Dior Sauvage, Chanel No. 5)"
+              className="w-full pl-16 pr-32 py-6 text-lg border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-300 shadow-lg hover:shadow-xl bg-white"
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              {isLoading ? "Searching..." : "Search"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Autocomplete Suggestions */}
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors first:rounded-t-xl last:rounded-b-xl border-b border-gray-100 last:border-b-0"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center space-x-2 pr-6">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="border-gray-300 hover:border-blue-500 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <Search className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{suggestion}</span>
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="ml-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                )}
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={!searchTerm.trim() || isLoading}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Searching...
+                  </div>
+                ) : (
+                  "Search"
+                )}
+              </Button>
+            </div>
+          </div>
+        </form>
+
+        {/* Search Suggestions */}
+        {showSuggestions && (searchTerm.length > 0 ? filteredSuggestions.length > 0 : true) && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-96 overflow-y-auto">
+            {searchTerm.length === 0 ? (
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-orange-500" />
+                  Popular Searches
+                </h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {popularSuggestions.slice(0, 6).map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestionClick(item.name)}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                    >
+                      <div className="flex items-center">
+                        <span className="font-medium text-gray-900">{item.name}</span>
+                        <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          {item.category}
+                        </span>
+                      </div>
+                      {item.trending && (
+                        <Star className="w-4 h-4 text-orange-500 fill-current" />
+                      )}
+                    </button>
+                  ))}
                 </div>
-              </button>
-            ))}
+              </div>
+            ) : (
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Suggestions</h3>
+                {filteredSuggestions.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(item.name)}
+                    className="flex items-center justify-between w-full p-3 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                  >
+                    <div className="flex items-center">
+                      <span className="font-medium text-gray-900">{item.name}</span>
+                      <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {item.category}
+                      </span>
+                    </div>
+                    {item.trending && (
+                      <Star className="w-4 h-4 text-orange-500 fill-current" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Advanced Filters */}
       {showFilters && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-lg animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
-            {hasActiveFilters && (
-              <Button
-                onClick={clearFilters}
-                variant="ghost"
-                size="sm"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Clear All
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg animate-fadeIn">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Filter className="w-5 h-5 mr-2" />
+              Advanced Filters
+            </h3>
+            <div className="flex items-center space-x-2">
+              {hasActiveFilters && (
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  <X className="w-4 h-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={() => setShowFilters(false)}>
+                <X className="w-4 h-4" />
               </Button>
-            )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Brand Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Brand</label>
+              <label className="block text-sm font-medium text-gray-700">Brand</label>
               <div className="relative">
                 <select
                   value={filters.brand}
-                  onChange={(e) => setFilters({...filters, brand: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                 >
                   <option value="">All Brands</option>
                   {brands.map(brand => (
@@ -173,35 +234,35 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
 
             {/* Price Range */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Min Price</label>
-              <Input
+              <label className="block text-sm font-medium text-gray-700">Min Price</label>
+              <input
                 type="number"
-                placeholder="$0"
                 value={filters.priceMin}
-                onChange={(e) => setFilters({...filters, priceMin: e.target.value})}
-                className="border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => setFilters(prev => ({ ...prev, priceMin: e.target.value }))}
+                placeholder="$0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Max Price</label>
-              <Input
+              <label className="block text-sm font-medium text-gray-700">Max Price</label>
+              <input
                 type="number"
-                placeholder="$500"
                 value={filters.priceMax}
-                onChange={(e) => setFilters({...filters, priceMax: e.target.value})}
-                className="border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={(e) => setFilters(prev => ({ ...prev, priceMax: e.target.value }))}
+                placeholder="$500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Concentration */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Concentration</label>
+              <label className="block text-sm font-medium text-gray-700">Concentration</label>
               <div className="relative">
                 <select
                   value={filters.concentration}
-                  onChange={(e) => setFilters({...filters, concentration: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  onChange={(e) => setFilters(prev => ({ ...prev, concentration: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                 >
                   <option value="">All Types</option>
                   {concentrations.map(conc => (
@@ -214,12 +275,12 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
 
             {/* Size */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Size</label>
+              <label className="block text-sm font-medium text-gray-700">Size</label>
               <div className="relative">
                 <select
                   value={filters.size}
-                  onChange={(e) => setFilters({...filters, size: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                  onChange={(e) => setFilters(prev => ({ ...prev, size: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
                 >
                   <option value="">All Sizes</option>
                   {sizes.map(size => (
@@ -230,8 +291,31 @@ const AdvancedSearch = ({ onSearch, searchTerm, setSearchTerm, isLoading }: Adva
               </div>
             </div>
           </div>
+
+          {/* Apply Filters Button */}
+          <div className="mt-6 flex justify-end">
+            <Button 
+              onClick={() => onSearch(searchTerm, filters)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2"
+            >
+              Apply Filters
+            </Button>
+          </div>
         </div>
       )}
+
+      {/* Quick Search Tags */}
+      <div className="flex flex-wrap gap-2 justify-center">
+        {["Dior Sauvage", "Chanel No. 5", "Tom Ford", "Creed Aventus", "YSL Black Opium"].map((tag) => (
+          <button
+            key={tag}
+            onClick={() => handleSuggestionClick(tag)}
+            className="px-4 py-2 bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 rounded-full text-sm font-medium transition-colors duration-200"
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,6 @@
-
-import { ExternalLink, TrendingUp, Package, Star, Clock, ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { Star, ExternalLink, ShoppingCart, Heart, Share2, TrendingDown, TrendingUp, Package, Truck, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface SearchResultsProps {
   results: {
@@ -29,12 +28,26 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ results }: SearchResultsProps) => {
+  const [sortBy, setSortBy] = useState<'price' | 'savings' | 'retailer'>('price');
   const { fragrance, prices } = results;
-  const sortedPrices = [...prices].sort((a, b) => a.price - b.price);
-  const lowestPrice = sortedPrices[0];
-  const highestPrice = sortedPrices[sortedPrices.length - 1];
+  
+  const sortedPrices = [...prices].sort((a, b) => {
+    switch (sortBy) {
+      case 'price':
+        return a.price - b.price;
+      case 'savings':
+        return b.savings - a.savings;
+      case 'retailer':
+        return a.retailer.localeCompare(b.retailer);
+      default:
+        return 0;
+    }
+  });
+
+  const lowestPrice = Math.min(...prices.map(p => p.price));
+  const highestPrice = Math.max(...prices.map(p => p.price));
   const averagePrice = prices.reduce((sum, p) => sum + p.price, 0) / prices.length;
-  const totalSavings = lowestPrice.originalPrice - lowestPrice.price;
+  const totalSavings = Math.max(...prices.map(p => p.originalPrice - p.price));
 
   const getStockColor = (stock: string) => {
     switch (stock) {
@@ -48,56 +61,74 @@ const SearchResults = ({ results }: SearchResultsProps) => {
 
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
+  const getPriceChangeIcon = (price: number) => {
+    if (price === lowestPrice) return <TrendingDown className="w-4 h-4 text-green-500" />;
+    if (price === highestPrice) return <TrendingUp className="w-4 h-4 text-red-500" />;
+    return null;
+  };
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fadeIn">
       {/* Enhanced Fragrance Header */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-xl p-8 border border-blue-100">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
-          <div className="relative group">
-            <img 
-              src={fragrance.image} 
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-shrink-0">
+            <img
+              src={fragrance.image}
               alt={fragrance.name}
-              className="w-40 h-40 object-cover rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300"
+              className="w-48 h-48 object-cover rounded-xl shadow-lg mx-auto lg:mx-0"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
           
-          <div className="flex-1 space-y-4">
+          <div className="flex-grow space-y-6">
             <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-2">{fragrance.name}</h2>
-              <p className="text-2xl text-blue-600 font-semibold mb-2">{fragrance.brand}</p>
-              <div className="flex items-center gap-4 flex-wrap">
-                <Badge className="bg-purple-100 text-purple-800 px-3 py-1">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">{fragrance.name}</h1>
+              <p className="text-xl text-gray-600 mb-4">by {fragrance.brand}</p>
+              
+              <div className="flex flex-wrap items-center gap-4 mb-4">
+                <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-sm">
                   {fragrance.concentration}
-                </Badge>
-                <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                </span>
+                <span className="bg-white px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-sm">
                   {fragrance.size}
-                </Badge>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm font-medium">{fragrance.rating}</span>
-                  <span className="text-sm text-gray-500">({fragrance.reviews} reviews)</span>
+                </span>
+                <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm">
+                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                  <span className="text-sm font-medium text-gray-700">
+                    {fragrance.rating} ({fragrance.reviews} reviews)
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <p className="text-3xl font-bold text-green-600">{formatPrice(lowestPrice.price)}</p>
-              <p className="text-sm text-gray-500">Best Price</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div className="text-2xl font-bold text-green-600">{formatPrice(lowestPrice)}</div>
+                <div className="text-sm text-gray-500">Lowest Price</div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div className="text-2xl font-bold text-blue-600">{formatPrice(averagePrice)}</div>
+                <div className="text-sm text-gray-500">Average Price</div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div className="text-2xl font-bold text-orange-600">{formatPrice(totalSavings)}</div>
+                <div className="text-sm text-gray-500">Max Savings</div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center shadow-sm">
+                <div className="text-2xl font-bold text-purple-600">{prices.length}</div>
+                <div className="text-sm text-gray-500">Retailers</div>
+              </div>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <p className="text-3xl font-bold text-blue-600">{formatPrice(averagePrice)}</p>
-              <p className="text-sm text-gray-500">Average</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <p className="text-3xl font-bold text-purple-600">{formatPrice(totalSavings)}</p>
-              <p className="text-sm text-gray-500">You Save</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <p className="text-3xl font-bold text-orange-600">{lowestPrice.savings}%</p>
-              <p className="text-sm text-gray-500">Max Discount</p>
+
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" className="flex items-center">
+                <Heart className="w-4 h-4 mr-2" />
+                Add to Wishlist
+              </Button>
+              <Button variant="outline" className="flex items-center">
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
             </div>
           </div>
         </div>
@@ -105,102 +136,112 @@ const SearchResults = ({ results }: SearchResultsProps) => {
 
       {/* Enhanced Price Comparison Table */}
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900">Price Comparison</h3>
-              <p className="text-gray-600">Comparing prices across 8 major retailers</p>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Clock className="w-4 h-4" />
-              <span>Updated 2 minutes ago</span>
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-2xl font-bold text-gray-900">Price Comparison</h2>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'price' | 'savings' | 'retailer')}
+                className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="price">Price (Low to High)</option>
+                <option value="savings">Savings (High to Low)</option>
+                <option value="retailer">Retailer (A-Z)</option>
+              </select>
             </div>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-8 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Retailer
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
-                  Shipping
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Savings
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stock
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Shipping
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Action
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {sortedPrices.map((item, index) => (
-                <tr key={item.retailer} className={`
-                  ${index === 0 ? "bg-green-50 border-l-4 border-green-400" : "hover:bg-gray-50"} 
-                  transition-colors duration-200
-                `}>
-                  <td className="px-8 py-6 whitespace-nowrap">
-                    <div className="flex items-center space-x-4">
-                      <img src={item.logo} alt={item.retailer} className="w-8 h-8 rounded" />
+            <tbody className="bg-white divide-y divide-gray-200">
+              {sortedPrices.map((retailer, index) => (
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <img
+                        src={retailer.logo}
+                        alt={retailer.retailer}
+                        className="w-8 h-8 rounded-full mr-3"
+                      />
                       <div>
-                        <div className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                          {item.retailer}
-                          {index === 0 && (
-                            <Badge className="bg-green-100 text-green-800 border-green-200">
-                              <Star className="w-3 h-3 mr-1" />
-                              Best Deal
-                            </Badge>
-                          )}
+                        <div className="text-sm font-medium text-gray-900">{retailer.retailer}</div>
+                        <div className="text-sm text-gray-500 flex items-center">
+                          <Truck className="w-3 h-3 mr-1" />
+                          {retailer.eta}
                         </div>
-                        <div className="text-sm text-gray-500">{item.eta}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                    <div className="space-y-1">
-                      <div className="text-2xl font-bold text-gray-900">{formatPrice(item.price)}</div>
-                      {item.originalPrice > item.price && (
-                        <div className="text-sm text-gray-500 line-through">{formatPrice(item.originalPrice)}</div>
-                      )}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div>
+                        <div className="text-lg font-bold text-gray-900 flex items-center">
+                          {formatPrice(retailer.price)}
+                          {getPriceChangeIcon(retailer.price)}
+                          {retailer.price === lowestPrice && (
+                            <span className="ml-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                              Best Price
+                            </span>
+                          )}
+                        </div>
+                        {retailer.originalPrice > retailer.price && (
+                          <div className="text-sm text-gray-500 line-through">
+                            {formatPrice(retailer.originalPrice)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                    <Badge className={`${getStockColor(item.stock)} border`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-green-600">
+                      ${(retailer.originalPrice - retailer.price).toFixed(2)} ({retailer.savings}%)
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStockColor(retailer.stock)}`}>
                       <Package className="w-3 h-3 mr-1" />
-                      {item.stock}
-                    </Badge>
+                      {retailer.stock}
+                    </span>
                   </td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{item.shipping}</div>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{retailer.shipping}</div>
                   </td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                    <div className="text-lg font-bold text-green-600">{item.savings}% off</div>
-                  </td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                    <Button 
-                      variant={index === 0 ? "default" : "outline"}
-                      size="sm"
-                      disabled={item.stock === "Out of Stock"}
-                      className={`
-                        flex items-center gap-2 transition-all duration-200
-                        ${index === 0 ? "bg-green-600 hover:bg-green-700 shadow-lg" : "hover:shadow-md"}
-                        ${item.stock === "Out of Stock" ? "opacity-50" : "hover:scale-105"}
-                      `}
-                      onClick={() => window.open(item.url, '_blank')}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <a
+                      href={retailer.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      {item.stock === "Out of Stock" ? "Unavailable" : "Visit Store"}
-                      <ArrowUpRight className="w-3 h-3" />
-                    </Button>
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Buy Now
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </a>
                   </td>
                 </tr>
               ))}
@@ -211,26 +252,17 @@ const SearchResults = ({ results }: SearchResultsProps) => {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-4 justify-center">
-        <Button 
-          variant="outline" 
-          className="bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-300"
-        >
-          <Star className="w-4 h-4 mr-2" />
-          Add to Watchlist
-        </Button>
-        <Button 
-          variant="outline"
-          className="bg-white hover:bg-purple-50 border-purple-200 hover:border-purple-300"
-        >
-          <TrendingUp className="w-4 h-4 mr-2" />
+        <Button className="bg-green-600 hover:bg-green-700 text-white">
+          <Clock className="w-4 h-4 mr-2" />
           Set Price Alert
         </Button>
-        <Button 
-          variant="outline"
-          className="bg-white hover:bg-green-50 border-green-200 hover:border-green-300"
-        >
-          <ExternalLink className="w-4 h-4 mr-2" />
-          Share Results
+        <Button variant="outline">
+          <TrendingUp className="w-4 h-4 mr-2" />
+          View Price History
+        </Button>
+        <Button variant="outline">
+          <Package className="w-4 h-4 mr-2" />
+          Compare Similar Fragrances
         </Button>
       </div>
     </div>

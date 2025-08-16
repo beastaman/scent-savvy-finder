@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, TrendingUp, Star, ExternalLink, Zap, Shield, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,17 +6,44 @@ import TrendingSearches from "@/components/TrendingSearches";
 import PriceAnalytics from "@/components/PriceAnalytics";
 import AdvancedSearch from "@/components/AdvancedSearch";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSearch = async (term: string, filters: any) => {
     if (!term.trim()) return;
     
     setIsLoading(true);
-    // Simulate API call with realistic timing
-    setTimeout(() => {
+    setError(null);
+    
+    try {
+      const queryParams = new URLSearchParams({
+        q: term,
+        ...(filters.brand && { brand: filters.brand }),
+        ...(filters.priceMin && { priceMin: filters.priceMin }),
+        ...(filters.priceMax && { priceMax: filters.priceMax }),
+        ...(filters.concentration && { concentration: filters.concentration }),
+        ...(filters.size && { size: filters.size })
+      });
+
+      const response = await fetch(`${API_BASE_URL}/search?${queryParams}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setSearchResults(data);
+      
+    } catch (error) {
+      console.error('Search error:', error);
+      setError('Failed to search. Please try again.');
+      
+      // Fallback to mock data for development
       const mockResults = {
         fragrance: {
           name: term,
@@ -41,17 +67,6 @@ const Index = () => {
             logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
           },
           { 
-            retailer: "FragranceX", 
-            price: 84.99, 
-            stock: "In Stock", 
-            url: "https://www.fragrancex.com/", 
-            savings: 20,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "3-5 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
             retailer: "Jomashop", 
             price: 72.99, 
             stock: "Limited", 
@@ -60,68 +75,14 @@ const Index = () => {
             originalPrice: 106.99,
             shipping: "$5.95",
             eta: "5-7 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
-            retailer: "FragranceShop", 
-            price: 89.99, 
-            stock: "In Stock", 
-            url: "https://www.fragranceshop.com/", 
-            savings: 16,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "2-4 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
-            retailer: "AuraFragrance", 
-            price: 87.99, 
-            stock: "In Stock", 
-            url: "https://www.aurafragrance.com/", 
-            savings: 18,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "3-5 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
-            retailer: "FragFlex", 
-            price: 76.99, 
-            stock: "Pre-order", 
-            url: "https://fragflex.com/", 
-            savings: 28,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "7-10 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
-            retailer: "FragranceBuy", 
-            price: 91.99, 
-            stock: "In Stock", 
-            url: "https://fragrancebuy.ca/", 
-            savings: 14,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "4-6 business days",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
-          },
-          { 
-            retailer: "PerfumeWorld", 
-            price: 94.99, 
-            stock: "Out of Stock", 
-            url: "#", 
-            savings: 11,
-            originalPrice: 106.99,
-            shipping: "Free shipping",
-            eta: "Currently unavailable",
-            logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=32&h=32&fit=crop"
+            logo: "https://images.unsplash.com/photo-1560472354-b43ff0c44a43?w=32&h=32&fit=crop"
           }
         ]
       };
       setSearchResults(mockResults);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -144,7 +105,7 @@ const Index = () => {
             <div className="hidden sm:flex items-center gap-6 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-green-500" />
-                <span>8 Trusted Retailers</span>
+                <span>7 Trusted Retailers</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-blue-500" />
@@ -168,7 +129,7 @@ const Index = () => {
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Perfume Deals</span>
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Search across 8 major retailers instantly and save up to 50% on your favorite fragrances with real-time price comparison
+              Search across 7 major retailers instantly and save up to 50% on your favorite fragrances with real-time price comparison
             </p>
           </div>
           
@@ -180,6 +141,13 @@ const Index = () => {
             isLoading={isLoading}
           />
 
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Trending Searches */}
           {!searchResults && <TrendingSearches onSearchClick={setSearchTerm} />}
 
@@ -187,7 +155,7 @@ const Index = () => {
           {!searchResults && (
             <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">8</div>
+                <div className="text-3xl font-bold text-blue-600">7</div>
                 <div className="text-sm text-gray-600">Major Retailers</div>
               </div>
               <div className="text-center">
@@ -236,7 +204,7 @@ const Index = () => {
                 </div>
                 <h4 className="text-2xl font-bold mb-4 text-gray-900">Instant Search</h4>
                 <p className="text-gray-600 leading-relaxed">
-                  Search across 8 major retailers in seconds with our lightning-fast comparison engine and get real-time results
+                  Search across 7 major retailers in seconds with our lightning-fast comparison engine and get real-time results
                 </p>
               </div>
               <div className="text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
@@ -274,7 +242,7 @@ const Index = () => {
             </div>
             <p className="text-gray-400 mb-6">The ultimate fragrance price comparison platform</p>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400">
-              <span>✓ 8 Major Retailers</span>
+              <span>✓ 7 Major Retailers</span>
               <span>✓ Real-time Pricing</span>
               <span>✓ Price History</span>
               <span>✓ Smart Alerts</span>
