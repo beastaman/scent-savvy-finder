@@ -14,8 +14,13 @@ const getRandomUserAgent = () => {
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const createBrowserInstance = async () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   return await puppeteer.launch({
-    headless: "new", // Use new headless mode
+    headless: "new",
+    executablePath: isProduction 
+      ? process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
+      : undefined,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -27,7 +32,16 @@ const createBrowserInstance = async () => {
       '--disable-web-security',
       '--disable-features=VizDisplayCompositor',
       '--window-size=1920,1080',
-      '--user-agent=' + getRandomUserAgent()
+      '--user-agent=' + getRandomUserAgent(),
+      ...(isProduction ? [
+        '--single-process',
+        '--no-zygote',
+        '--disable-extensions',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--memory-pressure-off'
+      ] : [])
     ]
   });
 };
@@ -71,7 +85,7 @@ const scrapePage = async (url, selectors, options = {}) => {
       try {
         await page.goto(url, { 
           waitUntil: 'domcontentloaded', 
-          timeout: 30000 
+          timeout: process.env.NODE_ENV === 'production' ? 45000 : 30000
         });
         break;
       } catch (error) {
@@ -123,8 +137,8 @@ const scrapePage = async (url, selectors, options = {}) => {
     console.error(`Scraping failed for ${url}:`, error.message);
     throw error;
   } finally {
-    if (page) await page.close();
-    if (browser) await browser.close();
+    if (page) await page.close().catch(() => {});
+    if (browser) await browser.close().catch(() => {});
   }
 };
 
